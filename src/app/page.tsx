@@ -127,8 +127,19 @@ export default function Home() {
       timestamp: currentTime,
       text: memoInput.trim(),
     };
-    setLogs((prev) => [...prev, newLog]);
+
+    setLogs((prev) => {
+      const updated = [...prev, newLog];
+      // タイムスタンプ順にソート
+      return updated.sort((a, b) => a.timestamp - b.timestamp);
+    });
     setMemoInput("");
+  };
+
+  const deleteLog = (id: string) => {
+    if (confirm("このログを削除しますか？")) {
+      setLogs((prev) => prev.filter((log) => log.id !== id));
+    }
   };
 
   const handleLogClick = (timestamp: number) => {
@@ -282,6 +293,7 @@ export default function Home() {
               onLogClick={handleLogClick}
               onClearLogs={clearLogs}
               onCopyLogs={copyLogs}
+              onDeleteLog={deleteLog}
               memoInput={memoInput}
               setMemoInput={setMemoInput}
               onAddLog={addLog}

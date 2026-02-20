@@ -14,6 +14,7 @@ interface LogSidebarProps {
     onLogClick: (timestamp: number) => void;
     onClearLogs: () => void;
     onCopyLogs: () => void;
+    onDeleteLog: (id: string) => void;
     memoInput: string;
     setMemoInput: (value: string) => void;
     onAddLog: () => void;
@@ -24,6 +25,7 @@ export default function LogSidebar({
     onLogClick,
     onClearLogs,
     onCopyLogs,
+    onDeleteLog,
     memoInput,
     setMemoInput,
     onAddLog,
@@ -74,14 +76,31 @@ export default function LogSidebar({
                         {logs.map((log) => (
                             <div
                                 key={log.id}
-                                onClick={() => onLogClick(log.timestamp)}
-                                className="group flex cursor-pointer items-start gap-3 rounded-md p-2 transition-colors hover:bg-zinc-800"
+                                className="group flex items-start gap-3 rounded-md p-2 transition-colors hover:bg-zinc-800"
                             >
-                                <div className="mt-0.5 flex shrink-0 items-center gap-1 font-mono text-rose-500">
+                                <div
+                                    onClick={() => onLogClick(log.timestamp)}
+                                    className="mt-0.5 flex cursor-pointer shrink-0 items-center gap-1 font-mono text-rose-500"
+                                >
                                     <Play size={12} fill="currentColor" />
                                     [{formatTime(log.timestamp)}]
                                 </div>
-                                <div className="break-all text-sm leading-relaxed">{log.text}</div>
+                                <div
+                                    onClick={() => onLogClick(log.timestamp)}
+                                    className="flex-1 cursor-pointer break-all text-sm leading-relaxed"
+                                >
+                                    {log.text}
+                                </div>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onDeleteLog(log.id);
+                                    }}
+                                    className="ml-auto opacity-0 transition-opacity hover:text-rose-500 group-hover:opacity-100"
+                                    title="このログを削除"
+                                >
+                                    <Trash2 size={14} />
+                                </button>
                             </div>
                         ))}
                     </div>
