@@ -217,9 +217,9 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="flex flex-1 overflow-hidden p-6">
-        <div className="mx-auto flex w-full max-w-[1600px] gap-6 flex-col lg:flex-row">
+        <div className="mx-auto flex w-full max-w-[1800px] gap-6 flex-col lg:flex-row">
           {/* Left Column: Player & Controls */}
-          <div className="flex flex-[2] flex-col gap-4">
+          <div className="flex flex-1 flex-col gap-4">
             {videoId ? (
               <YouTubePlayer
                 videoId={videoId}
@@ -287,7 +287,7 @@ export default function Home() {
           </div>
 
           {/* Right Column: Logs */}
-          <div className="flex flex-1 flex-col overflow-hidden min-h-[500px] lg:min-h-0">
+          <div className="flex flex-col overflow-hidden min-h-[500px] lg:min-h-0 lg:w-80 xl:w-96">
             <LogSidebar
               logs={logs}
               onLogClick={handleLogClick}
