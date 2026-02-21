@@ -15,6 +15,7 @@ interface LogSidebarProps {
     onClearLogs: () => void;
     onCopyLogs: () => void;
     onDeleteLog: (id: string) => void;
+    onImportLogs: (newEntries: Omit<LogEntry, "id">[]) => void;
     memoInput: string;
     setMemoInput: (value: string) => void;
     onAddLog: () => void;
@@ -26,10 +27,14 @@ export default function LogSidebar({
     onClearLogs,
     onCopyLogs,
     onDeleteLog,
+    onImportLogs,
     memoInput,
     setMemoInput,
     onAddLog,
 }: LogSidebarProps) {
+    const [isImportOpen, setIsImportOpen] = React.useState(false);
+    const [importText, setImportText] = React.useState("");
+
     const formatTime = (seconds: number) => {
         const min = Math.floor(seconds / 60);
         const sec = Math.floor(seconds % 60);
@@ -40,6 +45,42 @@ export default function LogSidebar({
         if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
             onAddLog();
+        }
+    };
+
+    const handleImport = () => {
+        const lines = importText.split("\n");
+        const newEntries: Omit<LogEntry, "id">[] = [];
+
+        // Support [hh:mm:ss], [mm:ss], mm:ss, etc.
+        const regex = /(?:\[?(\d+):)?(\d+):(\d+)\]?\s*(.*)/;
+
+        lines.forEach((line) => {
+            if (!line.trim()) return;
+            const match = line.match(regex);
+            if (match) {
+                const hours = match[1] ? parseInt(match[1], 10) : 0;
+                const mins = parseInt(match[2], 10);
+                const secs = parseInt(match[3], 10);
+                const text = match[4].trim();
+
+                if (!isNaN(mins) && !isNaN(secs)) {
+                    const totalSeconds = hours * 3600 + mins * 60 + secs;
+                    newEntries.push({
+                        timestamp: totalSeconds,
+                        text: text || "（メモなし）",
+                    });
+                }
+            }
+        });
+
+        if (newEntries.length > 0) {
+            onImportLogs(newEntries);
+            setImportText("");
+            setIsImportOpen(false);
+            alert(`${newEntries.length} 件のログをインポートしました。`);
+        } else {
+            alert("有効なタイムスタンプが見つかりませんでした。'[分:秒] 内容' または '[時:分:秒] 内容' の形式で入力してください。");
         }
     };
 
@@ -55,6 +96,14 @@ export default function LogSidebar({
                     >
                         <Copy size={16} />
                         コピー
+                    </button>
+                    <button
+                        onClick={() => setIsImportOpen(true)}
+                        className="flex items-center gap-1 rounded bg-zinc-800 px-3 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-700"
+                        title="テキストからインポート"
+                    >
+                        <Play size={16} />
+                        インポート
                     </button>
                     <button
                         onClick={onClearLogs}
@@ -119,6 +168,46 @@ export default function LogSidebar({
                     Enter で保存 | Shift + Enter で改行
                 </p>
             </div>
+
+            {/* Import Overlay */}
+            {isImportOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6 backdrop-blur-sm">
+                    <div className="w-full max-w-2xl rounded-xl border border-zinc-800 bg-zinc-900 p-6 shadow-2xl">
+                        <div className="mb-4 flex items-center justify-between">
+                            <h3 className="text-lg font-bold">ログをインポート</h3>
+                            <button
+                                onClick={() => setIsImportOpen(false)}
+                                className="text-zinc-500 hover:text-white"
+                            >
+                                <Trash2 size={20} />
+                            </button>
+                        </div>
+                        <p className="mb-4 text-xs text-zinc-400">
+                            '[分:秒] メモ内容' の形式のテキストを貼り付けてください。AIで整形した文章もそのまま読み込めます。
+                        </p>
+                        <textarea
+                            value={importText}
+                            onChange={(e) => setImportText(e.target.value)}
+                            placeholder="[01:23] ここに貼り付けてください..."
+                            className="mb-4 h-64 w-full resize-none rounded-lg border border-zinc-800 bg-zinc-950 p-4 font-mono text-sm focus:border-rose-500 focus:outline-none"
+                        />
+                        <div className="flex justify-end gap-3">
+                            <button
+                                onClick={() => setIsImportOpen(false)}
+                                className="rounded-lg px-4 py-2 text-sm font-medium transition-colors hover:bg-zinc-800"
+                            >
+                                キャンセル
+                            </button>
+                            <button
+                                onClick={handleImport}
+                                className="rounded-lg bg-rose-600 px-6 py-2 text-sm font-bold transition-all hover:bg-rose-500"
+                            >
+                                インポート実行
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

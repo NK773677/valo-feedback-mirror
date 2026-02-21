@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import YouTubePlayer from "@/components/YouTubePlayer";
 import LogSidebar, { LogEntry } from "@/components/LogSidebar";
-import { Play, Pause, RotateCcw, FastForward, Link as LinkIcon, Video } from "lucide-react";
+import { Play, Pause, RotateCcw, FastForward, Link as LinkIcon, Video, Search } from "lucide-react";
 
 export default function Home() {
   const [url, setUrl] = useState("");
@@ -12,6 +12,7 @@ export default function Home() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [memoInput, setMemoInput] = useState("");
+  const [isFaceZoomed, setIsFaceZoomed] = useState(false);
   const [isClient, setIsClient] = useState(false);
 
   // Focus tracking for shortcuts
@@ -136,6 +137,16 @@ export default function Home() {
     setMemoInput("");
   };
 
+  const importLogs = (newEntries: Omit<LogEntry, "id">[]) => {
+    setLogs((prev) => {
+      const updated = [
+        ...prev,
+        ...newEntries.map((e) => ({ ...e, id: Math.random().toString(36).substr(2, 9) })),
+      ];
+      return updated.sort((a, b) => a.timestamp - b.timestamp);
+    });
+  };
+
   const deleteLog = (id: string) => {
     if (confirm("このログを削除しますか？")) {
       setLogs((prev) => prev.filter((log) => log.id !== id));
@@ -221,11 +232,24 @@ export default function Home() {
           {/* Left Column: Player & Controls */}
           <div className="flex flex-1 flex-col gap-4">
             {videoId ? (
-              <YouTubePlayer
-                videoId={videoId}
-                onReady={handlePlayerReady}
-                onStateChange={handleStateChange}
-              />
+              <div className="relative group overflow-hidden rounded-lg">
+                <YouTubePlayer
+                  videoId={videoId}
+                  onReady={handlePlayerReady}
+                  onStateChange={handleStateChange}
+                  isZoomed={isFaceZoomed}
+                />
+                {/* Wipe Zoom Trigger Overlay */}
+                <button
+                  onClick={() => setIsFaceZoomed(!isFaceZoomed)}
+                  className={`absolute z-10 transition-all duration-300 flex items-center justify-center font-bold overflow-hidden ${isFaceZoomed
+                    ? "inset-0 bg-black/0 cursor-zoom-out" // 拡大中は全体をカバー（透明で見えないがクリック可能）
+                    : "bottom-0 right-0 w-1/4 h-1/3 opacity-0 group-hover:opacity-100 bg-rose-500/10 border-2 border-dashed border-rose-500/30 text-rose-500 text-xs cursor-zoom-in"
+                    }`}
+                >
+                  {!isFaceZoomed && "顔を拡大"}
+                </button>
+              </div>
             ) : (
               <div className="flex aspect-video w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-zinc-800 bg-zinc-900/50 text-zinc-500">
                 <Video size={48} className="mb-4 opacity-20" />
@@ -269,6 +293,20 @@ export default function Home() {
                   </div>
                   <span className="text-[10px] uppercase font-bold tracking-tight">+5秒</span>
                 </button>
+
+                <div className="mx-2 h-10 w-px bg-zinc-800" />
+
+                <button
+                  onClick={() => setIsFaceZoomed(!isFaceZoomed)}
+                  className={`flex flex-col items-center gap-1 transition-colors ${isFaceZoomed ? "text-rose-500" : "text-zinc-400 hover:text-white"
+                    }`}
+                  title="顔（ワイプ）を拡大/縮小"
+                >
+                  <div className={`rounded-full p-3 ${isFaceZoomed ? "bg-rose-500/20" : "bg-zinc-800"}`}>
+                    <Search size={20} />
+                  </div>
+                  <span className="text-[10px] uppercase font-bold tracking-tight">顔拡大</span>
+                </button>
               </div>
 
               {videoId && (
@@ -294,6 +332,7 @@ export default function Home() {
               onClearLogs={clearLogs}
               onCopyLogs={copyLogs}
               onDeleteLog={deleteLog}
+              onImportLogs={importLogs}
               memoInput={memoInput}
               setMemoInput={setMemoInput}
               onAddLog={addLog}

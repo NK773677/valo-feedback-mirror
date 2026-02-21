@@ -6,6 +6,7 @@ interface YouTubePlayerProps {
   videoId: string;
   onReady: (player: any) => void;
   onStateChange?: (state: number) => void;
+  isZoomed?: boolean;
 }
 
 declare global {
@@ -15,10 +16,12 @@ declare global {
   }
 }
 
-export default function YouTubePlayer({ videoId, onReady, onStateChange }: YouTubePlayerProps) {
+export default function YouTubePlayer({ videoId, onReady, onStateChange, isZoomed = false }: YouTubePlayerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<any>(null);
   const [apiReady, setApiReady] = useState(false);
+
+  // ... (省略されるが既存のコードの続き)
 
   // コールバックをrefに保存して、useEffectの依存配列から除外する
   // これにより、親の再レンダーでプレイヤーが再生成されるのを防ぐ
@@ -108,7 +111,14 @@ export default function YouTubePlayer({ videoId, onReady, onStateChange }: YouTu
 
   return (
     <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-black shadow-2xl">
-      <div ref={containerRef} className="h-full w-full" />
+      <div
+        ref={containerRef}
+        className="h-full w-full transition-transform duration-500 ease-in-out"
+        style={{
+          transform: isZoomed ? "scale(3.5) translate(-35%, -35%)" : "scale(1) translate(0, 0)",
+          transformOrigin: "center center",
+        }}
+      />
     </div>
   );
 }
