@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Play, Trash2, Copy, Pencil, Check, X } from "lucide-react";
+import { Play, Trash2, Copy, Pencil, Check, X, ArrowUpAZ, ArrowDownAZ } from "lucide-react";
 
 export interface LogEntry {
     id: string;
@@ -20,6 +20,8 @@ interface LogSidebarProps {
     memoInput: string;
     setMemoInput: (value: string) => void;
     onAddLog: () => void;
+    sortOrder: "asc" | "desc";
+    onToggleSort: () => void;
 }
 
 export default function LogSidebar({
@@ -33,6 +35,8 @@ export default function LogSidebar({
     memoInput,
     setMemoInput,
     onAddLog,
+    sortOrder,
+    onToggleSort,
 }: LogSidebarProps) {
     const [isImportOpen, setIsImportOpen] = React.useState(false);
     const [importText, setImportText] = React.useState("");
@@ -108,6 +112,14 @@ export default function LogSidebar({
                     >
                         <Play size={16} />
                         インポート
+                    </button>
+                    <button
+                        onClick={onToggleSort}
+                        className="flex items-center gap-1 rounded bg-zinc-800 px-3 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-700"
+                        title={sortOrder === "asc" ? "降順に切り替え" : "昇順に切り替え"}
+                    >
+                        {sortOrder === "asc" ? <ArrowUpAZ size={16} /> : <ArrowDownAZ size={16} />}
+                        {sortOrder === "asc" ? "昇順" : "降順"}
                     </button>
                     <button
                         onClick={onClearLogs}

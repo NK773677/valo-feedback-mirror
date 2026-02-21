@@ -14,6 +14,7 @@ export default function Home() {
   const [memoInput, setMemoInput] = useState("");
   const [isFaceZoomed, setIsFaceZoomed] = useState(false);
   const [isOverlayEnabled, setIsOverlayEnabled] = useState(true);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [isClient, setIsClient] = useState(false);
 
   // Focus tracking for shortcuts
@@ -33,6 +34,10 @@ export default function Home() {
       if (savedLogs) {
         setLogs(JSON.parse(savedLogs));
       }
+      const savedSortOrder = localStorage.getItem("valo_feedback_sort");
+      if (savedSortOrder === "asc" || savedSortOrder === "desc") {
+        setSortOrder(savedSortOrder);
+      }
     } catch (e) {
       console.error("Failed to load from localStorage", e);
     }
@@ -42,8 +47,9 @@ export default function Home() {
     if (isClient) {
       localStorage.setItem("valo_feedback_url", url);
       localStorage.setItem("valo_feedback_logs", JSON.stringify(logs));
+      localStorage.setItem("valo_feedback_sort", sortOrder);
     }
-  }, [url, logs, isClient]);
+  }, [url, logs, sortOrder, isClient]);
 
   // Beforeunload listener
   useEffect(() => {
@@ -142,8 +148,7 @@ export default function Home() {
 
     setLogs((prev) => {
       const updated = [...prev, newLog];
-      // タイムスタンプ順にソート
-      return updated.sort((a, b) => a.timestamp - b.timestamp);
+      return updated;
     });
     setMemoInput("");
   };
@@ -154,7 +159,7 @@ export default function Home() {
         ...prev,
         ...newEntries.map((e) => ({ ...e, id: Math.random().toString(36).substr(2, 9) })),
       ];
-      return updated.sort((a, b) => a.timestamp - b.timestamp);
+      return updated;
     });
   };
 
@@ -174,6 +179,16 @@ export default function Home() {
       player.playVideo();
     }
   };
+
+  const sortedLogs = React.useMemo(() => {
+    return [...logs].sort((a, b) => {
+      if (sortOrder === "asc") {
+        return a.timestamp - b.timestamp;
+      } else {
+        return b.timestamp - a.timestamp;
+      }
+    });
+  }, [logs, sortOrder]);
 
   const copyLogs = () => {
     const formatTime = (seconds: number) => {
@@ -363,7 +378,7 @@ export default function Home() {
           {/* Right Column: Logs */}
           <div className="flex flex-col overflow-hidden min-h-[500px] lg:min-h-0 lg:w-80 xl:w-96">
             <LogSidebar
-              logs={logs}
+              logs={sortedLogs}
               onLogClick={handleLogClick}
               onClearLogs={clearLogs}
               onCopyLogs={copyLogs}
@@ -373,6 +388,8 @@ export default function Home() {
               memoInput={memoInput}
               setMemoInput={setMemoInput}
               onAddLog={addLog}
+              sortOrder={sortOrder}
+              onToggleSort={() => setSortOrder(prev => prev === "asc" ? "desc" : "asc")}
             />
           </div>
         </div>
