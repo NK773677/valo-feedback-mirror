@@ -13,6 +13,7 @@ export default function Home() {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [memoInput, setMemoInput] = useState("");
   const [isFaceZoomed, setIsFaceZoomed] = useState(false);
+  const [isOverlayEnabled, setIsOverlayEnabled] = useState(true);
   const [isClient, setIsClient] = useState(false);
 
   // Focus tracking for shortcuts
@@ -81,6 +82,11 @@ export default function Home() {
       if (e.code === "Space") {
         e.preventDefault();
         togglePlay();
+      }
+
+      if (e.code === "KeyZ") {
+        e.preventDefault();
+        setIsFaceZoomed(prev => !prev);
       }
     };
 
@@ -240,20 +246,22 @@ export default function Home() {
                   isZoomed={isFaceZoomed}
                 />
                 {/* Wipe Zoom Trigger Overlay */}
-                <button
-                  onClick={() => setIsFaceZoomed(!isFaceZoomed)}
-                  className={`absolute z-10 transition-all duration-300 flex items-center justify-center font-bold overflow-hidden ${isFaceZoomed
-                    ? "inset-0 bg-black/0 cursor-zoom-out" // 拡大中は全体をカバー
-                    : "bottom-12 right-2 w-[30%] h-[30%] opacity-0 group-hover:opacity-100 bg-rose-500/10 border-2 border-dashed border-rose-500/30 text-rose-500 text-xs cursor-zoom-in rounded-xl backdrop-blur-[1px]"
-                    }`}
-                >
-                  {!isFaceZoomed && (
-                    <div className="flex flex-col items-center gap-1">
-                      <Search size={22} />
-                      <span>顔を拡大</span>
-                    </div>
-                  )}
-                </button>
+                {isOverlayEnabled && (
+                  <button
+                    onClick={() => setIsFaceZoomed(!isFaceZoomed)}
+                    className={`absolute z-10 transition-all duration-300 flex items-center justify-center font-bold overflow-hidden ${isFaceZoomed
+                      ? "inset-0 bg-black/0 cursor-zoom-out" // 拡大中は全体をカバー
+                      : "bottom-16 right-4 w-[28%] h-[28%] opacity-0 group-hover:opacity-100 bg-rose-500/10 border-2 border-dashed border-rose-500/30 text-rose-500 text-xs cursor-zoom-in rounded-xl backdrop-blur-[1px]"
+                      }`}
+                  >
+                    {!isFaceZoomed && (
+                      <div className="flex flex-col items-center gap-1">
+                        <Search size={22} />
+                        <span>顔を拡大</span>
+                      </div>
+                    )}
+                  </button>
+                )}
               </div>
             ) : (
               <div className="flex aspect-video w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-zinc-800 bg-zinc-900/50 text-zinc-500">
@@ -305,12 +313,26 @@ export default function Home() {
                   onClick={() => setIsFaceZoomed(!isFaceZoomed)}
                   className={`flex flex-col items-center gap-1 transition-colors ${isFaceZoomed ? "text-rose-500" : "text-zinc-400 hover:text-white"
                     }`}
-                  title="顔（ワイプ）を拡大/縮小"
+                  title="顔（ワイプ）を拡大/縮小 (Z)"
                 >
                   <div className={`rounded-full p-3 ${isFaceZoomed ? "bg-rose-500/20" : "bg-zinc-800"}`}>
                     <Search size={20} />
                   </div>
                   <span className="text-[10px] uppercase font-bold tracking-tight">顔拡大</span>
+                </button>
+
+                <div className="mx-1 h-10 w-px bg-zinc-800" />
+
+                <button
+                  onClick={() => setIsOverlayEnabled(!isOverlayEnabled)}
+                  className={`flex flex-col items-center gap-1 transition-colors ${isOverlayEnabled ? "text-rose-500" : "text-zinc-500 hover:text-zinc-300"
+                    }`}
+                  title="動画上の拡大ボタン表示/非表示"
+                >
+                  <div className={`rounded-full p-3 ${isOverlayEnabled ? "bg-rose-500/10" : "bg-zinc-800"}`}>
+                    <Video size={20} />
+                  </div>
+                  <span className="text-[10px] uppercase font-bold tracking-tight">{isOverlayEnabled ? "UIオン" : "UIオフ"}</span>
                 </button>
               </div>
 
