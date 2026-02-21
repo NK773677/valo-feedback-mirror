@@ -76,18 +76,23 @@ export default function Home() {
         return;
       }
 
-      // 以下のショートカットは入力中は無効
-      if (isInInput || isInTextArea) return;
-
+      // スペースキーまたは Z キーはメモ欄 (TEXTAREA) でも機能させる（URL入力欄は除く）
       if (e.code === "Space") {
+        if (isInInput) return;
         e.preventDefault();
         togglePlay();
+        return;
       }
 
       if (e.code === "KeyZ") {
+        if (isInInput) return;
         e.preventDefault();
         setIsFaceZoomed(prev => !prev);
+        return;
       }
+
+      // その他のショートカットは入力中は無効
+      if (isInInput || isInTextArea) return;
     };
 
     window.addEventListener("keydown", handleKeyDown);
