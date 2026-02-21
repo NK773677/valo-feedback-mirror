@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Play, Trash2, Copy } from "lucide-react";
+import { Play, Trash2, Copy, Pencil, Check, X } from "lucide-react";
 
 export interface LogEntry {
     id: string;
@@ -15,6 +15,7 @@ interface LogSidebarProps {
     onClearLogs: () => void;
     onCopyLogs: () => void;
     onDeleteLog: (id: string) => void;
+    onUpdateLog: (id: string, text: string) => void;
     onImportLogs: (newEntries: Omit<LogEntry, "id">[]) => void;
     memoInput: string;
     setMemoInput: (value: string) => void;
@@ -27,6 +28,7 @@ export default function LogSidebar({
     onClearLogs,
     onCopyLogs,
     onDeleteLog,
+    onUpdateLog,
     onImportLogs,
     memoInput,
     setMemoInput,
@@ -34,6 +36,8 @@ export default function LogSidebar({
 }: LogSidebarProps) {
     const [isImportOpen, setIsImportOpen] = React.useState(false);
     const [importText, setImportText] = React.useState("");
+    const [editingId, setEditingId] = React.useState<string | null>(null);
+    const [editingText, setEditingText] = React.useState("");
 
     const formatTime = (seconds: number) => {
         const min = Math.floor(seconds / 60);
@@ -125,7 +129,8 @@ export default function LogSidebar({
                         {logs.map((log) => (
                             <div
                                 key={log.id}
-                                className="group flex items-start gap-3 rounded-md p-2 transition-colors hover:bg-zinc-800"
+                                className={`group flex items-start gap-3 rounded-md p-2 transition-colors ${editingId === log.id ? "bg-zinc-800" : "hover:bg-zinc-800"
+                                    }`}
                             >
                                 <div
                                     onClick={() => onLogClick(log.timestamp)}
@@ -134,22 +139,76 @@ export default function LogSidebar({
                                     <Play size={12} fill="currentColor" />
                                     [{formatTime(log.timestamp)}]
                                 </div>
-                                <div
-                                    onClick={() => onLogClick(log.timestamp)}
-                                    className="flex-1 cursor-pointer break-all text-sm leading-relaxed"
-                                >
-                                    {log.text}
-                                </div>
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        onDeleteLog(log.id);
-                                    }}
-                                    className="ml-auto opacity-0 transition-opacity hover:text-rose-500 group-hover:opacity-100"
-                                    title="このログを削除"
-                                >
-                                    <Trash2 size={14} />
-                                </button>
+
+                                {editingId === log.id ? (
+                                    <div className="flex flex-1 flex-col gap-2">
+                                        <textarea
+                                            value={editingText}
+                                            onChange={(e) => setEditingText(e.target.value)}
+                                            autoFocus
+                                            className="w-full resize-none rounded bg-zinc-900 p-2 text-sm focus:outline-none"
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Enter" && !e.shiftKey) {
+                                                    e.preventDefault();
+                                                    onUpdateLog(log.id, editingText);
+                                                    setEditingId(null);
+                                                }
+                                                if (e.key === "Escape") {
+                                                    setEditingId(null);
+                                                }
+                                            }}
+                                        />
+                                        <div className="flex justify-end gap-2">
+                                            <button
+                                                onClick={() => setEditingId(null)}
+                                                className="p-1 text-zinc-500 hover:text-white"
+                                            >
+                                                <X size={14} />
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    onUpdateLog(log.id, editingText);
+                                                    setEditingId(null);
+                                                }}
+                                                className="p-1 text-green-500 hover:text-green-400"
+                                            >
+                                                <Check size={14} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div
+                                            onClick={() => onLogClick(log.timestamp)}
+                                            className="flex-1 cursor-pointer break-all text-sm leading-relaxed"
+                                        >
+                                            {log.text}
+                                        </div>
+                                        <div className="ml-auto flex gap-1 group-hover:opacity-100 opacity-0 transition-opacity">
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setEditingId(log.id);
+                                                    setEditingText(log.text);
+                                                }}
+                                                className="transition-colors hover:text-rose-500"
+                                                title="ログを編集"
+                                            >
+                                                <Pencil size={14} />
+                                            </button>
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    onDeleteLog(log.id);
+                                                }}
+                                                className="transition-colors hover:text-rose-500"
+                                                title="このログを削除"
+                                            >
+                                                <Trash2 size={14} />
+                                            </button>
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         ))}
                     </div>

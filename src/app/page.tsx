@@ -164,6 +164,10 @@ export default function Home() {
     }
   };
 
+  const updateLog = (id: string, newText: string) => {
+    setLogs((prev) => prev.map((log) => log.id === id ? { ...log, text: newText } : log));
+  };
+
   const handleLogClick = (timestamp: number) => {
     if (player) {
       player.seekTo(timestamp, true);
@@ -364,6 +368,7 @@ export default function Home() {
               onClearLogs={clearLogs}
               onCopyLogs={copyLogs}
               onDeleteLog={deleteLog}
+              onUpdateLog={updateLog}
               onImportLogs={importLogs}
               memoInput={memoInput}
               setMemoInput={setMemoInput}
