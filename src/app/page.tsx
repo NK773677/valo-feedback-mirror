@@ -243,11 +243,16 @@ export default function Home() {
                 <button
                   onClick={() => setIsFaceZoomed(!isFaceZoomed)}
                   className={`absolute z-10 transition-all duration-300 flex items-center justify-center font-bold overflow-hidden ${isFaceZoomed
-                    ? "inset-0 bg-black/0 cursor-zoom-out" // 拡大中は全体をカバー（透明で見えないがクリック可能）
-                    : "bottom-0 right-0 w-1/3 h-1/3 opacity-0 group-hover:opacity-100 bg-rose-500/10 border-2 border-dashed border-rose-500/30 text-rose-500 text-xs cursor-zoom-in"
+                    ? "inset-0 bg-black/0 cursor-zoom-out" // 拡大中は全体をカバー
+                    : "bottom-12 right-2 w-[30%] h-[30%] opacity-0 group-hover:opacity-100 bg-rose-500/10 border-2 border-dashed border-rose-500/30 text-rose-500 text-xs cursor-zoom-in rounded-xl backdrop-blur-[1px]"
                     }`}
                 >
-                  {!isFaceZoomed && "顔を拡大"}
+                  {!isFaceZoomed && (
+                    <div className="flex flex-col items-center gap-1">
+                      <Search size={22} />
+                      <span>顔を拡大</span>
+                    </div>
+                  )}
                 </button>
               </div>
             ) : (
