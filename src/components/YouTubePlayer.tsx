@@ -115,8 +115,8 @@ export default function YouTubePlayer({ videoId, onReady, onStateChange, isZoome
         ref={containerRef}
         className="h-full w-full transition-transform duration-500 ease-in-out"
         style={{
-          transform: isZoomed ? "scale(1.8)" : "scale(1)",
-          transformOrigin: "90% 85%",
+          transform: isZoomed ? "scale(1.5)" : "scale(1)",
+          transformOrigin: "100% 100%",
         }}
       />
     </div>

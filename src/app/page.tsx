@@ -244,7 +244,7 @@ export default function Home() {
                   onClick={() => setIsFaceZoomed(!isFaceZoomed)}
                   className={`absolute z-10 transition-all duration-300 flex items-center justify-center font-bold overflow-hidden ${isFaceZoomed
                     ? "inset-0 bg-black/0 cursor-zoom-out" // 拡大中は全体をカバー（透明で見えないがクリック可能）
-                    : "bottom-0 right-0 w-3/5 h-3/4 opacity-0 group-hover:opacity-100 bg-rose-500/10 border-2 border-dashed border-rose-500/30 text-rose-500 text-xs cursor-zoom-in"
+                    : "bottom-0 right-0 w-1/3 h-1/2 opacity-0 group-hover:opacity-100 bg-rose-500/10 border-2 border-dashed border-rose-500/30 text-rose-500 text-xs cursor-zoom-in"
                     }`}
                 >
                   {!isFaceZoomed && "顔を拡大"}
