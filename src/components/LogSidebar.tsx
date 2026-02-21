@@ -119,6 +119,19 @@ export default function LogSidebar({
                 </div>
             </div>
 
+            <div className="flex flex-col gap-2">
+                <textarea
+                    value={memoInput}
+                    onChange={(e) => setMemoInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="メモを入力して Enter..."
+                    className="min-h-[48px] w-full resize-none rounded-lg border border-zinc-800 bg-zinc-900 p-3 text-sm focus:border-rose-500 focus:outline-none"
+                />
+                <p className="text-[10px] text-zinc-500">
+                    Enter で保存 | Shift + Enter で改行
+                </p>
+            </div>
+
             <div className="flex-1 overflow-y-auto rounded-lg border border-zinc-800 bg-zinc-900/50 p-2">
                 {logs.length === 0 ? (
                     <div className="flex h-full items-center justify-center text-zinc-500">
@@ -213,19 +226,6 @@ export default function LogSidebar({
                         ))}
                     </div>
                 )}
-            </div>
-
-            <div className="flex flex-col gap-2">
-                <textarea
-                    value={memoInput}
-                    onChange={(e) => setMemoInput(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder="メモを入力して Enter..."
-                    className="min-h-[100px] w-full resize-none rounded-lg border border-zinc-800 bg-zinc-900 p-3 text-sm focus:border-rose-500 focus:outline-none"
-                />
-                <p className="text-[10px] text-zinc-500">
-                    Enter で保存 | Shift + Enter で改行
-                </p>
             </div>
 
             {/* Import Overlay */}
